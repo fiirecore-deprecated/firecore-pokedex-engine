@@ -1,7 +1,8 @@
+pub extern crate firecore_engine as engine;
 extern crate firecore_dependencies as deps;
-extern crate firecore_engine as engine;
 extern crate firecore_pokedex as pokedex;
 
+pub use deps::borrow::*;
 pub use pokedex::*;
 
 pub mod battle2;
