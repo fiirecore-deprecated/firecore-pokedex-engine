@@ -11,6 +11,8 @@ pub mod gui;
 
 pub mod serialize;
 
+pub const CRY_ID: deps::str::TinyStr8 = unsafe { deps::str::TinyStr8::new_unchecked(7959107) };
+
 mod init;
 
 pub use init::*;
