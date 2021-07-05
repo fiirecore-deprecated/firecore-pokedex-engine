@@ -1,0 +1,20 @@
+[package]
+name = "firecore-pokedex-game"
+version = "0.5.0-beta.2021-06-19"
+authors = ["Rhys Holloway <rhyswilliamholloway@gmail.com>"]
+edition = "2018"
+readme = "README.md"
+publish = false
+
+[features]
+default = []
+audio = []
+
+[dependencies]
+
+firecore-pokedex = { git = "https://github.com/DoNotDoughnut/firecore-pokedex", features = ["stackcount"] }
+firecore-dependencies = { git = "https://github.com/DoNotDoughnut/firecore-dependencies", features = ["random", "vec", "hash", "str"] }
+firecore-engine = { git = "https://github.com/DoNotDoughnut/firecore-engine" }
+
+serde = { version = "1.0", features = ["derive"] }
+atomic = "0.5"
