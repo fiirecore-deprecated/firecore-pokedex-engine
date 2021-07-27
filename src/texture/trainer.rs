@@ -6,14 +6,16 @@ use engine::{
     graphics::TextureManager,
 };
 
-pub struct TrainerTextures;
-
-static mut TRAINER_TEXTURES: Option<HashMap<TrainerId, Texture>> = None;
+pub struct TrainerTextures(pub(crate) HashMap<TrainerId, Texture>);
 
 impl TextureManager for TrainerTextures {
     type Id = TrainerId;
 
-    fn map<'a>() -> &'a mut Option<HashMap<Self::Id, Texture>> {
-        unsafe { &mut TRAINER_TEXTURES }
+    fn map(&self) -> &HashMap<Self::Id, Texture> {
+        &self.0
+    }
+
+    fn map_mut(&mut self) -> &mut HashMap<Self::Id, Texture> {
+        &mut self.0
     }
 }

@@ -16,7 +16,10 @@ use engine::{
         math::Vec2,
         Context,
     },
+    EngineContext,
 };
+
+use crate::context::PokedexClientContext;
 
 use self::select::PartySelectMenu;
 use self::summary::SummaryGui;
@@ -65,7 +68,7 @@ impl PartyGui {
 
     const SELECT_CORNER: Color = Color::rgb(120.0 / 255.0, 152.0 / 255.0, 96.0 / 255.0);
 
-    pub fn new(ctx: &mut Context) -> Self {
+    pub fn new(ctx: &mut Context, dex: &PokedexClientContext) -> Self {
         Self {
             alive: AtomicBool::new(false),
             select: PartySelectMenu::new(ctx),
@@ -75,7 +78,7 @@ impl PartyGui {
                 include_bytes!("../../../assets/party/background.png"),
             ),
             ball: byte_texture(ctx, include_bytes!("../../../assets/party/ball.png")),
-            health: HealthBar::new(ctx),
+            health: HealthBar::new(dex),
             accumulator: Atomic::new(0.0),
             pokemon: RefCell::new(ArrayVec::new()),
             cursor: AtomicUsize::new(0),
@@ -102,7 +105,7 @@ impl PartyGui {
         self.exitable.store(exitable, Relaxed);
     }
 
-    pub fn input<P>(&self, ctx: &Context, party: &mut [P]) {
+    pub fn input<P>(&self, ctx: &EngineContext, dex: &PokedexClientContext, party: &mut [P]) {
         if self.summary.alive() {
             self.summary.input(ctx);
         } else if self.select.alive.load(Relaxed) {
@@ -114,7 +117,7 @@ impl PartyGui {
                         self.select.alive.store(false, Relaxed);
                     }
                     select::PartySelectAction::Summary => {
-                        self.summary.spawn(self.pokemon.borrow()[cursor].clone());
+                        self.summary.spawn(dex, self.pokemon.borrow()[cursor].clone());
                         self.select.alive.store(false, Relaxed);
                     }
                 }
@@ -180,7 +183,7 @@ impl PartyGui {
         }
     }
 
-    pub fn draw(&self, ctx: &mut Context) {
+    pub fn draw(&self, ctx: &mut EngineContext) {
         // deps::log::debug!("to - do: /party brings up party gui");
         if self.summary.alive() {
             self.summary.draw(ctx);
@@ -203,7 +206,7 @@ impl PartyGui {
         }
     }
 
-    fn draw_primary(&self, ctx: &mut Context, pokemon: &PokemonDisplay) {
+    fn draw_primary(&self, ctx: &mut EngineContext, pokemon: &PokemonDisplay) {
         let selected = self.cursor.load(Relaxed) == 0;
         let mut skip = false;
         if self.select.is_world.load(Relaxed).is_some() {
@@ -244,14 +247,14 @@ impl PartyGui {
         }
         self.draw_ball(ctx, 3.0, 20.0, selected);
         self.draw_pokemon(ctx, &pokemon.icon, 0.0, 20.0, selected);
-        draw_text_left(ctx, &0, &pokemon.name, &TextColor::White, 33.0, 36.0);
-        draw_text_left(ctx, &0, &pokemon.level, &TextColor::White, 41.0, 45.0);
+        draw_text_left(ctx, &0, &pokemon.name, TextColor::White, 33.0, 36.0);
+        draw_text_left(ctx, &0, &pokemon.level, TextColor::White, 41.0, 45.0);
         self.draw_health(ctx, pokemon, 17.0, 57.0);
     }
 
     fn draw_primary_color(
         &self,
-        ctx: &mut Context,
+        ctx: &mut EngineContext,
         light: Color,
         dark: Color,
         border: Option<Color>,
@@ -268,7 +271,7 @@ impl PartyGui {
         }
     }
 
-    fn draw_cell(&self, ctx: &mut Context, index: usize, pokemon: &PokemonDisplay, selected: bool) {
+    fn draw_cell(&self, ctx: &mut EngineContext, index: usize, pokemon: &PokemonDisplay, selected: bool) {
         let offset = -14.0 + (24.0 * index as f32);
         let mut skip = false;
         if self.select.is_world.load(Relaxed).is_some() {
@@ -305,12 +308,12 @@ impl PartyGui {
         }
         self.draw_ball(ctx, 88.0, offset - 1.0, selected);
         self.draw_pokemon(ctx, &pokemon.icon, 87.0, offset - 8.0, selected);
-        draw_text_left(ctx, &0, &pokemon.name, &TextColor::White, 119.0, offset);
+        draw_text_left(ctx, &0, &pokemon.name, TextColor::White, 119.0, offset);
         draw_text_left(
             ctx,
             &0,
             &pokemon.level,
-            &TextColor::White,
+            TextColor::White,
             129.0,
             offset + 9.0,
         );
@@ -319,7 +322,7 @@ impl PartyGui {
 
     fn draw_cell_color(
         &self,
-        ctx: &mut Context,
+        ctx: &mut EngineContext,
         y: f32,
         light: Color,
         dark: Color,
@@ -359,14 +362,14 @@ impl PartyGui {
         );
     }
 
-    fn draw_health(&self, ctx: &mut Context, pokemon: &PokemonDisplay, x: f32, y: f32) {
+    fn draw_health(&self, ctx: &mut EngineContext, pokemon: &PokemonDisplay, x: f32, y: f32) {
         self.health
             .draw_width(ctx, Vec2::new(x, y), pokemon.health.1);
         draw_text_left(
             ctx,
             &0,
             &pokemon.health.0,
-            &TextColor::White,
+            TextColor::White,
             x + 35.0,
             y + 5.0,
         );

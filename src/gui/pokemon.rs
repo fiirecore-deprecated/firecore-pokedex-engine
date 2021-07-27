@@ -1,25 +1,16 @@
 use std::borrow::Cow;
 
-use crate::{
-    types::PokemonType,
-    texture::{
-        pokemon_texture,
-        PokemonTexture::Icon,
-    },
-    pokemon::instance::PokemonInstance,
-};
+use crate::{context::PokedexClientContext, pokemon::instance::PokemonInstance, texture::PokemonTexture::Icon, types::PokemonType};
 
 use engine::tetra::graphics::{Color, Texture};
 
 #[derive(Clone)]
 pub struct PokemonDisplay {
-
     pub instance: Cow<'static, PokemonInstance>,
     pub icon: Texture,
     pub name: String,
     pub level: String,
     pub health: (String, f32),
-
 }
 
 // pub struct PokemonSummaryDisplay {
@@ -40,27 +31,27 @@ const POISON_LOWER: Color = Color::rgb(160.0 / 255.0, 64.0 / 255.0, 160.0 / 255.
 const FLYING_UPPER: Color = Color::rgb(152.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0);
 
 pub fn pokemon_type_color(pokemon_type: PokemonType) -> (Color, Color) {
-	match pokemon_type {
-	    PokemonType::Normal => (NORMAL, NORMAL),
-	    // PokemonType::Fire => {}
-	    PokemonType::Water => (WATER, WATER),
-	    // PokemonType::Electric => {}
-	    PokemonType::Grass => (GRASS, GRASS),
-	    // PokemonType::Ice => {}
-	    PokemonType::Fighting => (FIGHTING, FIGHTING),
-	    PokemonType::Poison => (POISON_UPPER, POISON_LOWER),
-	    // PokemonType::Ground => {}
-	    PokemonType::Flying => (FLYING_UPPER, NORMAL),
-	    // PokemonType::Psychic => {}
-	    // PokemonType::Bug => {}
-	    // PokemonType::Rock => {}
-	    // PokemonType::Ghost => {}
-	    // PokemonType::Dragon => {}
-	    // PokemonType::Dark => {}
-	    // PokemonType::Steel => {}
-	    // PokemonType::Fairy => {}
-		_ => (PLACEHOLDER, PLACEHOLDER),
-	}
+    match pokemon_type {
+        PokemonType::Normal => (NORMAL, NORMAL),
+        // PokemonType::Fire => {}
+        PokemonType::Water => (WATER, WATER),
+        // PokemonType::Electric => {}
+        PokemonType::Grass => (GRASS, GRASS),
+        // PokemonType::Ice => {}
+        PokemonType::Fighting => (FIGHTING, FIGHTING),
+        PokemonType::Poison => (POISON_UPPER, POISON_LOWER),
+        // PokemonType::Ground => {}
+        PokemonType::Flying => (FLYING_UPPER, NORMAL),
+        // PokemonType::Psychic => {}
+        // PokemonType::Bug => {}
+        // PokemonType::Rock => {}
+        // PokemonType::Ghost => {}
+        // PokemonType::Dragon => {}
+        // PokemonType::Dark => {}
+        // PokemonType::Steel => {}
+        // PokemonType::Fairy => {}
+        _ => (PLACEHOLDER, PLACEHOLDER),
+    }
 }
 
 pub struct PokemonTypeDisplay {
@@ -72,20 +63,21 @@ pub struct PokemonTypeDisplay {
 impl PokemonDisplay {
     pub const ICON_TICK: f32 = 0.15;
 
-    pub fn new(instance: Cow<'static, PokemonInstance>) -> Self {
+    pub fn new(ctx: &PokedexClientContext, instance: Cow<'static, PokemonInstance>) -> Self {
         Self {
             name: instance.name().to_string(),
             level: format!("Lv{}", instance.level),
-            health: (format!("{}/{}", instance.hp(), instance.max_hp()), super::health::HealthBar::width(instance.hp(), instance.max_hp())),
-            icon: pokemon_texture(instance.pokemon.id(), Icon).clone(),
+            health: (
+                format!("{}/{}", instance.hp(), instance.max_hp()),
+                super::health::HealthBar::width(instance.hp(), instance.max_hp()),
+            ),
+            icon: ctx.pokemon_textures.get(instance.pokemon.id(), Icon).clone(),
             instance,
         }
     }
-
 }
 
 impl PokemonTypeDisplay {
-
     pub fn new(pokemon_type: PokemonType) -> Self {
         let (upper, lower) = pokemon_type_color(pokemon_type);
         Self {
@@ -94,5 +86,4 @@ impl PokemonTypeDisplay {
             lower,
         }
     }
-
 }

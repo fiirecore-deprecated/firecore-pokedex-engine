@@ -8,7 +8,7 @@ use crate::pokemon::Pokemon;
 use crate::moves::Move;
 use crate::item::Item;
 
-use crate::battle2::serialized::SerializedBattleMoveBytes;
+use crate::battle_move::serialized::SerializedBattleMoveBytes;
 
 pub type SerializedTrainers = HashMap<TrainerId, Vec<u8>>;
 

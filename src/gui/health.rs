@@ -1,15 +1,16 @@
 use engine::{
-    graphics::{byte_texture, draw_rectangle},
+    graphics::draw_rectangle,
     gui::ProgressBar,
     tetra::{
         graphics::{Color, DrawParams, Texture},
         math::Vec2,
-        Context,
     },
+    EngineContext,
 };
+
 use pokedex::pokemon::Health;
 
-static mut TEXTURE: Option<Texture> = None;
+use crate::context::PokedexClientContext;
 
 pub struct HealthBar {
     background: Texture,
@@ -39,27 +40,22 @@ impl HealthBar {
         lower: Color::rgb(248.0 / 255.0, 88.0 / 255.0, 56.0 / 255.0),
     };
 
-    pub fn new(ctx: &mut Context) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             background: Self::texture(ctx).clone(),
             bar: ProgressBar::new(Self::WIDTH),
         }
     }
 
-    pub fn with_size(ctx: &mut Context, width: f32) -> Self {
+    pub fn with_size(ctx: &PokedexClientContext, width: f32) -> Self {
         Self {
             background: Self::texture(ctx).clone(),
             bar: ProgressBar::new(width),
         }
     }
 
-    pub fn texture(ctx: &mut Context) -> &Texture {
-        unsafe {
-            TEXTURE.get_or_insert(byte_texture(
-                ctx,
-                include_bytes!("../../assets/health.png"),
-            ))
-        }
+    pub fn texture(ctx: &PokedexClientContext) -> &Texture {
+        &ctx.health_bar
     }
 
     pub fn width(current: Health, max: Health) -> f32 {
@@ -82,11 +78,11 @@ impl HealthBar {
         self.bar.update(delta)
     }
 
-    pub fn draw(&self, ctx: &mut Context, origin: Vec2<f32>) {
+    pub fn draw(&self, ctx: &mut EngineContext, origin: Vec2<f32>) {
         self.draw_width(ctx, origin, self.bar.width().ceil());
     }
 
-    pub fn draw_width(&self, ctx: &mut Context, origin: Vec2<f32>, width: f32) {
+    pub fn draw_width(&self, ctx: &mut EngineContext, origin: Vec2<f32>, width: f32) {
         self.background
             .draw(ctx, DrawParams::position(DrawParams::default(), origin));
         let x = origin.x + 15.0;

@@ -1,31 +1,21 @@
 use crate::{
     item::{bag::Bag, ItemRef, ItemStackInstance},
-    texture::ItemTextures,
+    context::PokedexClientContext,
 };
 use atomic::Atomic;
 use engine::{
-    graphics::{byte_texture, draw_cursor, draw_o, draw_text_left, position, TextureManager},
+    graphics::{draw_cursor, draw_o, draw_text_left, position, TextureManager},
     gui::Panel,
     input::{pressed, Control},
-    tetra::{graphics::Texture, Context},
+    tetra::graphics::Texture,
     text::TextColor,
     util::HEIGHT,
+    EngineContext,
 };
 use std::{
     cell::RefCell,
     sync::atomic::{AtomicBool, AtomicUsize, Ordering::Relaxed},
 };
-
-static mut BAG_BACKGROUND: Option<Texture> = None;
-
-fn bag_background(ctx: &mut Context) -> &Texture {
-    unsafe {
-        BAG_BACKGROUND.get_or_insert(byte_texture(
-            ctx,
-            include_bytes!("../../assets/bag/items.png"),
-        ))
-    }
-}
 
 // const WORLD_OPTIONS: &[&'static str] = &[
 //     "Use",
@@ -52,13 +42,13 @@ pub struct BagGui {
 }
 
 impl BagGui {
-    pub fn new(ctx: &mut Context) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             alive: AtomicBool::new(false),
-            background: bag_background(ctx).clone(),
+            background: ctx.bag_background.clone(),
             cursor: AtomicUsize::new(0),
             selecting: AtomicBool::new(false),
-            select: Panel::new(ctx),
+            select: Panel,
             select_cursor: AtomicUsize::new(0),
             // select_text: Atomic::new(None),
             items: RefCell::new(Vec::new()),
@@ -66,7 +56,7 @@ impl BagGui {
         }
     }
 
-    pub fn input(&self, ctx: &Context) {
+    pub fn input(&self, ctx: &EngineContext) {
         match self.selecting.load(Relaxed) {
             true => {
                 // match self.select_text {
@@ -122,33 +112,33 @@ impl BagGui {
         }
     }
 
-    pub fn draw(&self, ctx: &mut Context) {
+    pub fn draw(&self, ctx: &mut EngineContext, dex: &PokedexClientContext) {
         self.background.draw(ctx, position(0.0, 0.0));
         let mut items = self.items.borrow_mut();
         let cursor = self.cursor.load(Relaxed);
         for (index, item) in items.iter_mut().enumerate() {
             let y = 11.0 + (index << 4) as f32;
-            draw_text_left(ctx, &1, &item.stack().item.name, &TextColor::Black, 98.0, y);
-            draw_text_left(ctx, &1, "x", &TextColor::Black, 200.0, y);
-            draw_text_left(ctx, &1, item.count(), &TextColor::Black, 208.0, y);
+            draw_text_left(ctx, &1, &item.stack().item.name, TextColor::Black, 98.0, y);
+            draw_text_left(ctx, &1, "x", TextColor::Black, 200.0, y);
+            draw_text_left(ctx, &1, item.count(), TextColor::Black, 208.0, y);
         }
         draw_text_left(
             ctx,
             &1,
             "Cancel",
-            &TextColor::Black,
+            TextColor::Black,
             98.0,
             11.0 + (items.len() << 4) as f32,
         );
         if let Some(item) = items.get(cursor) {
             let item = &item.stack().item;
-            draw_o(ctx, ItemTextures::try_get(&item.id), 8.0, 125.0);
+            draw_o(ctx, dex.item_textures.try_get(&item.id), 8.0, 125.0);
             for (index, line) in item.description.iter().enumerate() {
                 draw_text_left(
                     ctx,
                     &1,
                     line,
-                    &TextColor::White,
+                    TextColor::White,
                     41.0,
                     117.0 + (index * 14) as f32,
                 );

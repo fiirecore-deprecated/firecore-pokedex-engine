@@ -11,8 +11,6 @@ mod trainer;
 pub use item::ItemTextures;
 pub use trainer::TrainerTextures;
 
-pub static mut POKEMON_TEXTURES: Option<PokemonTextures> = None;
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PokemonTexture {
     Front,
@@ -20,27 +18,10 @@ pub enum PokemonTexture {
     Icon,
 }
 
-// impl PokemonTexture {
-//     pub const fn path(self) -> &'static str {
-//         match self {
-//             PokemonTexture::Front => "front",
-//             PokemonTexture::Back => "back",
-//             PokemonTexture::Icon => "icon",
-//         }
-//     }
-// }
-
-pub fn pokemon_texture(id: &PokemonId, side: PokemonTexture) -> &Texture {
-	unsafe{POKEMON_TEXTURES.as_ref()}.expect("Could not get pokemon textures!").get(id, side)
-}
-
-
 pub struct PokemonTextures {
-
     pub front: HashMap<PokemonId, Texture>,
     pub back: HashMap<PokemonId, Texture>,
     pub icon: HashMap<PokemonId, Texture>,
-
 }
 
 impl PokemonTextures {

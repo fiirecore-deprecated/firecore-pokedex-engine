@@ -7,15 +7,17 @@ use engine::{
 
 use pokedex::item::ItemId;
 
-pub struct ItemTextures;
-
-static mut TEXTURES: Option<HashMap<<ItemTextures as TextureManager>::Id, Texture>> = None;
+pub struct ItemTextures(pub(crate) HashMap<ItemId, Texture>);
 
 impl TextureManager for ItemTextures {
     type Id = ItemId;
+
+    fn map(&self) -> &HashMap<Self::Id, Texture> {
+        &self.0
+    }
     
-    fn map<'a>() -> &'a mut Option<HashMap<Self::Id, Texture>> {
-        unsafe { &mut TEXTURES }
+    fn map_mut(&mut self) -> &mut HashMap<Self::Id, Texture> {
+        &mut self.0
     }
 
 }

@@ -6,6 +6,7 @@ use engine::{
     input::{pressed, Control},
     tetra::{graphics::Texture, Context},
     text::TextColor,
+    EngineContext,
 };
 
 pub struct PartySelectMenu {
@@ -39,7 +40,7 @@ impl PartySelectMenu {
         }
     }
 
-    pub fn input(&self, ctx: &Context) -> Option<PartySelectAction> {
+    pub fn input(&self, ctx: &EngineContext) -> Option<PartySelectAction> {
         if let Some(is_world) = self.is_world.load(Relaxed) {
             let cursor = self.cursor.load(Relaxed);
             if pressed(ctx, Control::Up) && cursor > 0 {
@@ -89,7 +90,7 @@ impl PartySelectMenu {
         }
     }
 
-    pub fn draw(&self, ctx: &mut Context) {
+    pub fn draw(&self, ctx: &mut EngineContext) {
         if self.alive.load(Relaxed) {
             if let Some(is_world) = self.is_world.load(Relaxed) {
                 self.background
@@ -106,7 +107,7 @@ impl PartySelectMenu {
                         ctx,
                         &1,
                         line,
-                        &TextColor::Black,
+                        TextColor::Black,
                         161.0,
                         93.0 + (index << 4) as f32,
                     )

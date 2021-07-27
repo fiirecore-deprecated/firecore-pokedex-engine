@@ -5,7 +5,7 @@ use std::{
 
 use atomic::Atomic;
 
-use crate::texture::{pokemon_texture, PokemonTexture::Front};
+use crate::{context::PokedexClientContext, texture::PokemonTexture::Front};
 
 use engine::{
     graphics::{byte_texture, draw_circle, draw_line, draw_rectangle, draw_text_left, draw_text_center, position},
@@ -17,6 +17,7 @@ use engine::{
     gui::Panel,
     text::TextColor,
     util::WIDTH,
+    EngineContext,
 };
 
 use crate::gui::pokemon::{PokemonDisplay, PokemonTypeDisplay};
@@ -77,7 +78,7 @@ impl SummaryGui {
         }
     }
 
-    pub fn input(&self, ctx: &Context) {
+    pub fn input(&self, ctx: &EngineContext) {
         let page = self.page.load(Relaxed);
         if pressed(ctx, Control::Left) && page > 0 {
             self.page.store(page - 1, Relaxed);
@@ -90,7 +91,7 @@ impl SummaryGui {
         }
     }
 
-    pub fn draw(&self, ctx: &mut Context) {
+    pub fn draw(&self, ctx: &mut EngineContext) {
         let current_page = self.page.load(Relaxed);
         let w = 114.0 + (current_page << 4) as f32;
         let rw = WIDTH - w;
@@ -101,7 +102,7 @@ impl SummaryGui {
             ctx,
             &1,
             self.headers[current_page],
-            &TextColor::White,
+            TextColor::White,
             5.0,
             1.0,
         );
@@ -125,21 +126,21 @@ impl SummaryGui {
                 ctx,
                 &1,
                 &pokemon.display.level,
-                &TextColor::White,
+                TextColor::White,
                 5.0,
                 19.0,
             );
-            draw_text_left(ctx, &1, pokemon.pokemon.1, &TextColor::White, 41.0, 19.0);
+            draw_text_left(ctx, &1, pokemon.pokemon.1, TextColor::White, 41.0, 19.0);
             const TOP: DrawParams = position(0.0, 17.0);
             match self.page.load(Relaxed) {
                 0 => {
                     self.pages[0].draw(ctx, TOP);
-                    draw_text_left(ctx, &1, &pokemon.pokemon.0, &TextColor::Black, 168.0, 21.0);
+                    draw_text_left(ctx, &1, &pokemon.pokemon.0, TextColor::Black, 168.0, 21.0);
                     draw_text_left(
                         ctx,
                         &1,
                         &pokemon.display.name,
-                        &TextColor::Black,
+                        TextColor::Black,
                         168.0,
                         36.0,
                     );
@@ -152,7 +153,7 @@ impl SummaryGui {
                             ctx,
                             &0,
                             &display.name,
-                            &TextColor::White,
+                            TextColor::White,
                             x + 16.0,
                             52.0,
                             false,
@@ -194,12 +195,12 @@ impl SummaryGui {
         }
     }
 
-    pub fn spawn(&self, pokemon: PokemonDisplay) {
+    pub fn spawn(&self, ctx: &PokedexClientContext, pokemon: PokemonDisplay) {
         self.alive.store(true, Relaxed);
         self.offset.int.store(Default::default(), Relaxed);
         self.offset.boolean.store(Default::default(), Relaxed);
         self.offset.float.store(Default::default(), Relaxed);
-        *self.pokemon.borrow_mut() = Some(SummaryPokemon::new(pokemon));
+        *self.pokemon.borrow_mut() = Some(SummaryPokemon::new(ctx, pokemon));
     }
 
     pub fn despawn(&self) {
@@ -221,7 +222,7 @@ pub struct SummaryPokemon {
 }
 
 impl SummaryPokemon {
-    pub fn new(display: PokemonDisplay) -> Self {
+    pub fn new(ctx: &PokedexClientContext, display: PokemonDisplay) -> Self {
         let pokemon = display.instance.pokemon.value();
         let mut types = Vec::with_capacity(if pokemon.secondary_type.is_some() {
             2
@@ -235,7 +236,7 @@ impl SummaryPokemon {
             types.push(PokemonTypeDisplay::new(secondary));
         }
 
-        let texture = pokemon_texture(&pokemon.id, Front);
+        let texture = ctx.pokemon_textures.get(&pokemon.id, Front);
 
         Self {
             pokemon: (pokemon.id.to_string(), &pokemon.name),
