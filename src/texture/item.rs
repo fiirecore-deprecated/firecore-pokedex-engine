@@ -1,4 +1,4 @@
-use deps::hash::HashMap;
+use hashbrown::HashMap;
 
 use engine::{
     tetra::graphics::Texture,
@@ -7,7 +7,15 @@ use engine::{
 
 use pokedex::item::ItemId;
 
-pub struct ItemTextures(pub(crate) HashMap<ItemId, Texture>);
+type ItemTextureMap = HashMap<ItemId, Texture>;
+
+pub struct ItemTextures(pub(crate) ItemTextureMap);
+
+impl ItemTextures {
+    pub fn with_capacity(capacity: usize) -> ItemTextureMap {
+        ItemTextureMap::with_capacity(capacity)
+    }
+}
 
 impl TextureManager for ItemTextures {
     type Id = ItemId;

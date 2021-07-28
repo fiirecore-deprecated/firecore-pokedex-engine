@@ -130,12 +130,12 @@ impl SummaryGui {
                 5.0,
                 19.0,
             );
-            draw_text_left(ctx, &1, pokemon.pokemon.1, TextColor::White, 41.0, 19.0);
+            draw_text_left(ctx, &1, &pokemon.display.instance.pokemon.name, TextColor::White, 41.0, 19.0);
             const TOP: DrawParams = position(0.0, 17.0);
             match self.page.load(Relaxed) {
                 0 => {
                     self.pages[0].draw(ctx, TOP);
-                    draw_text_left(ctx, &1, &pokemon.pokemon.0, TextColor::Black, 168.0, 21.0);
+                    draw_text_left(ctx, &1, &pokemon.pokemon, TextColor::Black, 168.0, 21.0);
                     draw_text_left(
                         ctx,
                         &1,
@@ -215,7 +215,7 @@ impl SummaryGui {
 
 pub struct SummaryPokemon {
     display: PokemonDisplay,
-    pokemon: (String, &'static String), // id and name
+    pokemon: String, // id and name
     front: (Texture, f32),              // texture and pos
     types: Vec<PokemonTypeDisplay>,
     // item: String,
@@ -223,7 +223,7 @@ pub struct SummaryPokemon {
 
 impl SummaryPokemon {
     pub fn new(ctx: &PokedexClientContext, display: PokemonDisplay) -> Self {
-        let pokemon = display.instance.pokemon.value();
+        let pokemon = &*display.instance.pokemon;
         let mut types = Vec::with_capacity(if pokemon.secondary_type.is_some() {
             2
         } else {
@@ -239,7 +239,7 @@ impl SummaryPokemon {
         let texture = ctx.pokemon_textures.get(&pokemon.id, Front);
 
         Self {
-            pokemon: (pokemon.id.to_string(), &pokemon.name),
+            pokemon: pokemon.id.to_string(),
             front: (
                 texture.clone(),
                 34.0 + (64.0 - texture.height() as f32) / 2.0,

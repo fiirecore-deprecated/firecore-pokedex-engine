@@ -1,5 +1,3 @@
-use deps::hash::HashMap;
-
 use engine::{
     graphics::byte_texture,
     tetra::{graphics::Texture, Result, Context},
@@ -12,7 +10,7 @@ use crate::{
     pokemon::Pokedex,
     serialize::SerializedDex,
     texture::{ItemTextures, PokemonTextures, TrainerTextures},
-    Dex, 
+    id::Dex, 
 };
 
 #[cfg(feature = "audio")]
@@ -68,9 +66,9 @@ impl PokedexClientContext {
     
         let mut itemdex = Itemdex::with_capacity(dex.items.len());
     
-        let mut item_textures = HashMap::with_capacity(dex.items.len());
+        let mut item_textures = ItemTextures::with_capacity(dex.items.len());
     
-        for item in dex.items {
+        for item in dex.items.into_iter() {
             item_textures.insert(item.item.id, Texture::from_file_data(ctx, &item.texture)?);
             itemdex.insert(item.item.id, item.item);
         }

@@ -1,4 +1,4 @@
-use deps::hash::HashMap;
+use hashbrown::HashMap;
 use engine::tetra::{Context, Result, graphics::Texture};
 
 use pokedex::pokemon::PokemonId;

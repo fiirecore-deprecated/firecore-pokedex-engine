@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use deps::hash::HashMap;
+use hashbrown::HashMap;
 
 use pokedex::trainer::TrainerId;
 

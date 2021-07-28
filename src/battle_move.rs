@@ -1,30 +1,13 @@
-use deps::{borrow::Identifiable, hash::HashMap};
-
 use engine::tetra::graphics::Texture;
+use hashbrown::HashMap;
 
 use pokedex::{
-    moves::{Move, MoveId},
-    Dex,
+    id::{Dex, Identifiable, IdentifiableRef},
+    moves::{MoveId, Movedex},
 };
 
 pub mod script;
 pub mod serialized;
-
-pub type BattleMoveRef = &'static BattleMove;
-
-pub struct BattleMovedex;
-
-static mut BATTLE_MOVE_DEX: Option<HashMap<MoveId, BattleMove>> = None;
-
-impl Dex<'static> for BattleMovedex {
-    type DexType = BattleMove;
-
-    fn dex() -> &'static mut Option<
-        HashMap<<<Self as Dex<'static>>::DexType as Identifiable<'static>>::Id, Self::DexType>,
-    > {
-        unsafe { &mut BATTLE_MOVE_DEX }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct BattleMove {
@@ -44,19 +27,30 @@ impl BattleMove {
     }
 }
 
-impl<'a> Identifiable<'a> for BattleMove {
-    type Id = MoveId;
+pub type BattleMoveRef = IdentifiableRef<BattleMovedex>;
 
-    const UNKNOWN: Self::Id = Move::UNKNOWN;
+impl Identifiable for BattleMove {
+    type Id = MoveId;
 
     fn id(&self) -> &Self::Id {
         &self.id
     }
+}
 
-    fn try_get(id: &Self::Id) -> Option<&'a Self>
-    where
-        Self: Sized,
-    {
-        BattleMovedex::try_get(id)
+pub struct BattleMovedex;
+
+static mut BATTLE_MOVE_DEX: Option<HashMap<MoveId, BattleMove>> = None;
+
+impl Dex for BattleMovedex {
+    type Kind = BattleMove;
+
+    const UNKNOWN: MoveId = Movedex::UNKNOWN;
+
+    fn dex() -> &'static HashMap<MoveId, BattleMove> {
+        unsafe { BATTLE_MOVE_DEX.as_ref().unwrap() }
+    }
+
+    fn dex_mut() -> &'static mut Option<HashMap<MoveId, BattleMove>> {
+        unsafe { &mut BATTLE_MOVE_DEX }
     }
 }

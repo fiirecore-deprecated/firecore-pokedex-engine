@@ -4,7 +4,6 @@ use std::{
 };
 
 use atomic::Atomic;
-use deps::vec::ArrayVec;
 use pokedex::pokemon::party::Party;
 
 use engine::{
@@ -80,7 +79,7 @@ impl PartyGui {
             ball: byte_texture(ctx, include_bytes!("../../../assets/party/ball.png")),
             health: HealthBar::new(dex),
             accumulator: Atomic::new(0.0),
-            pokemon: RefCell::new(ArrayVec::new()),
+            pokemon: RefCell::new(Default::default()),
             cursor: AtomicUsize::new(0),
             right_cursor: Atomic::new(None),
             selected: Atomic::new(None),
@@ -96,7 +95,7 @@ impl PartyGui {
 
     pub fn spawn(
         &self,
-        party: ArrayVec<[PokemonDisplay; 6]>,
+        party: Party<PokemonDisplay>,
         is_world: Option<bool>,
         exitable: bool,
     ) {

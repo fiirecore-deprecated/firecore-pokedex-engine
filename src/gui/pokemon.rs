@@ -1,6 +1,12 @@
 use std::borrow::Cow;
 
-use crate::{context::PokedexClientContext, pokemon::instance::PokemonInstance, texture::PokemonTexture::Icon, types::PokemonType};
+use crate::{
+    context::PokedexClientContext, 
+    id::Identifiable, 
+    pokemon::instance::PokemonInstance,
+    texture::PokemonTexture::Icon, 
+    types::PokemonType,
+};
 
 use engine::tetra::graphics::{Color, Texture};
 
@@ -71,7 +77,10 @@ impl PokemonDisplay {
                 format!("{}/{}", instance.hp(), instance.max_hp()),
                 super::health::HealthBar::width(instance.hp(), instance.max_hp()),
             ),
-            icon: ctx.pokemon_textures.get(instance.pokemon.id(), Icon).clone(),
+            icon: ctx
+                .pokemon_textures
+                .get(instance.pokemon.id(), Icon)
+                .clone(),
             instance,
         }
     }
