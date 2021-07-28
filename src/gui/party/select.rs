@@ -2,12 +2,14 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering::Relaxed};
 
 use atomic::Atomic;
 use engine::{
-    graphics::{byte_texture, draw_cursor, draw_text_left, position},
+    graphics::{draw_cursor, draw_text_left, position},
     input::{pressed, Control},
-    tetra::{graphics::Texture, Context},
+    tetra::graphics::Texture,
     text::TextColor,
     EngineContext,
 };
+
+use crate::context::PokedexClientContext;
 
 pub struct PartySelectMenu {
     pub alive: AtomicBool,
@@ -29,10 +31,10 @@ pub enum PartySelectAction {
 }
 
 impl PartySelectMenu {
-    pub fn new(ctx: &mut Context) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             alive: AtomicBool::new(false),
-            background: byte_texture(ctx, include_bytes!("../../../assets/party/select.png")),
+            background: ctx.party.select.clone(),
             cursor: AtomicUsize::new(0),
             world: ["Summary", "Switch", "Item", "Cancel"],
             battle: ["Shift", "Summary", "Cancel"],
@@ -93,8 +95,7 @@ impl PartySelectMenu {
     pub fn draw(&self, ctx: &mut EngineContext) {
         if self.alive.load(Relaxed) {
             if let Some(is_world) = self.is_world.load(Relaxed) {
-                self.background
-                    .draw(ctx, position(146.0, 83.0));
+                self.background.draw(ctx, position(146.0, 83.0));
                 draw_cursor(ctx, 154.0, 94.0 + (self.cursor.load(Relaxed) << 4) as f32);
                 if is_world {
                     self.world.iter()

@@ -7,7 +7,7 @@ use atomic::Atomic;
 use pokedex::pokemon::party::Party;
 
 use engine::{
-    graphics::{byte_texture, draw_line, draw_rectangle, draw_text_left, position},
+    graphics::{draw_line, draw_rectangle, draw_text_left, position},
     text::TextColor,
     input::{pressed, Control},
     tetra::{
@@ -67,17 +67,14 @@ impl PartyGui {
 
     const SELECT_CORNER: Color = Color::rgb(120.0 / 255.0, 152.0 / 255.0, 96.0 / 255.0);
 
-    pub fn new(ctx: &mut Context, dex: &PokedexClientContext) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             alive: AtomicBool::new(false),
             select: PartySelectMenu::new(ctx),
             summary: SummaryGui::new(ctx),
-            background: byte_texture(
-                ctx,
-                include_bytes!("../../../assets/party/background.png"),
-            ),
-            ball: byte_texture(ctx, include_bytes!("../../../assets/party/ball.png")),
-            health: HealthBar::new(dex),
+            background: ctx.party.background.clone(),
+            ball: ctx.party.ball.clone(),
+            health: HealthBar::new(ctx),
             accumulator: Atomic::new(0.0),
             pokemon: RefCell::new(Default::default()),
             cursor: AtomicUsize::new(0),

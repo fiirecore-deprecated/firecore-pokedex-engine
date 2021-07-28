@@ -8,13 +8,12 @@ use atomic::Atomic;
 use crate::{context::PokedexClientContext, texture::PokemonTexture::Front};
 
 use engine::{
-    graphics::{byte_texture, draw_circle, draw_line, draw_rectangle, draw_text_left, draw_text_center, position},
-    input::{pressed, Control},
-    tetra::{
-        graphics::{Color, DrawParams, Texture},
-        Context,
+    graphics::{
+        draw_circle, draw_line, draw_rectangle, draw_text_center, draw_text_left, position,
     },
     gui::Panel,
+    input::{pressed, Control},
+    tetra::graphics::{Color, DrawParams, Texture},
     text::TextColor,
     util::WIDTH,
     EngineContext,
@@ -50,29 +49,13 @@ impl SummaryGui {
     const HEADER_RIGHT: Color = Color::rgb(0.0, 120.0 / 255.0, 192.0 / 255.0);
     const HEADER_RIGHT_DARK: Color = Color::rgb(0.0, 72.0 / 255.0, 144.0 / 255.0);
 
-    pub fn new(ctx: &mut Context) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             alive: AtomicBool::new(false),
             headers: ["POKEMON INFO", "POKEMON SKILLS", "KNOWN MOVES"],
-            pages: [
-                byte_texture(
-                    ctx,
-                    include_bytes!("../../../assets/party/summary/info.png"),
-                ),
-                byte_texture(
-                    ctx,
-                    include_bytes!("../../../assets/party/summary/skills.png"),
-                ),
-                byte_texture(
-                    ctx,
-                    include_bytes!("../../../assets/party/summary/moves.png"),
-                ),
-            ],
+            pages: ctx.party.summary.pages.clone(),
             offset: Default::default(),
-            pokemon_background: byte_texture(
-                ctx,
-                include_bytes!("../../../assets/party/summary/pokemon.png"),
-            ),
+            pokemon_background: ctx.party.summary.background.clone(),
             page: AtomicUsize::new(0),
             pokemon: RefCell::new(None),
         }
@@ -122,15 +105,15 @@ impl SummaryGui {
                 ctx,
                 position(28.0, pokemon.front.1 + self.offset.float.load(Relaxed)),
             );
+            draw_text_left(ctx, &1, &pokemon.display.level, TextColor::White, 5.0, 19.0);
             draw_text_left(
                 ctx,
                 &1,
-                &pokemon.display.level,
+                &pokemon.display.instance.pokemon.name,
                 TextColor::White,
-                5.0,
+                41.0,
                 19.0,
             );
-            draw_text_left(ctx, &1, &pokemon.display.instance.pokemon.name, TextColor::White, 41.0, 19.0);
             const TOP: DrawParams = position(0.0, 17.0);
             match self.page.load(Relaxed) {
                 0 => {
@@ -215,8 +198,8 @@ impl SummaryGui {
 
 pub struct SummaryPokemon {
     display: PokemonDisplay,
-    pokemon: String, // id and name
-    front: (Texture, f32),              // texture and pos
+    pokemon: String,       // id and name
+    front: (Texture, f32), // texture and pos
     types: Vec<PokemonTypeDisplay>,
     // item: String,
 }

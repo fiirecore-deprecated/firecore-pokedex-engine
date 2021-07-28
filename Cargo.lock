@@ -313,7 +313,7 @@ dependencies = [
 [[package]]
 name = "firecore-engine"
 version = "0.2.0"
-source = "git+https://github.com/DoNotDoughnut/firecore-engine#d536e18fee0637fb1b782d7db2f1383dc8ada8df"
+source = "git+https://github.com/DoNotDoughnut/firecore-engine#69339d3f9aa9de0f421460eac95bdaf9595f2e37"
 dependencies = [
  "dashmap",
  "enum-map",
@@ -328,7 +328,7 @@ dependencies = [
 [[package]]
 name = "firecore-pokedex"
 version = "0.5.0-beta.2021-07-27"
-source = "git+https://github.com/DoNotDoughnut/firecore-pokedex#4c5103442263fdf34f697fb441ec5afea766be1b"
+source = "git+https://github.com/DoNotDoughnut/firecore-pokedex#0db3cb967d540302870475e1933d13e9b3af516c"
 dependencies = [
  "arrayvec",
  "hashbrown",
@@ -764,9 +764,9 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "rhai"
-version = "0.20.3"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8e23c09a050ef3dda3e5c79a73b73659561e2c2907ec4812c1e1391564dd360"
+checksum = "378357360ecb73c9fe845edda6fd23f79cefdd86530051065e2e95370c9e5f41"
 dependencies = [
  "ahash",
  "instant",

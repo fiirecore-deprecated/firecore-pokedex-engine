@@ -33,7 +33,6 @@ pub struct BagGui {
     cursor: AtomicUsize,
 
     selecting: AtomicBool,
-    select: Panel,
     select_cursor: AtomicUsize,
     // select_text: Atomic<Option<TextOption>>,
     items: RefCell<Vec<ItemStackInstance>>,
@@ -48,7 +47,6 @@ impl BagGui {
             background: ctx.bag_background.clone(),
             cursor: AtomicUsize::new(0),
             selecting: AtomicBool::new(false),
-            select: Panel,
             select_cursor: AtomicUsize::new(0),
             // select_text: Atomic::new(None),
             items: RefCell::new(Vec::new()),
@@ -147,7 +145,7 @@ impl BagGui {
         draw_cursor(ctx, 91.0, 13.0 + (cursor << 4) as f32);
         if self.selecting.load(Relaxed) {
             // if let Some(text) = self.select_text {
-            self.select.draw_text(
+            Panel::draw_text(
                 ctx,
                 146.0,
                 HEIGHT,
