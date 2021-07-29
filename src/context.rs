@@ -48,11 +48,11 @@ impl PokedexClientContext {
             {
                 use engine::audio::{serialized::SerializedSoundData as SoundData, sound::Sound};
 
-                if !pokemon.cry_ogg.is_empty() {
+                if !pokemon.cry.is_empty() {
                     engine::audio::add_sound(
                         &ctx.audio.sound,
                         SoundData {
-                            bytes: pokemon.cry_ogg,
+                            bytes: pokemon.cry,
                             sound: Sound {
                                 name: crate::CRY_ID,
                                 variant: Some(pokemon.pokemon.id),
