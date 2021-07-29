@@ -4,56 +4,32 @@ use hashbrown::HashMap;
 
 use pokedex::trainer::TrainerId;
 
-use crate::pokemon::Pokemon;
-use crate::moves::Move;
-use crate::item::Item;
-
-use crate::battle_move::serialized::SerializedBattleMoveBytes;
+use crate::{battle_move::serialized::SerializedBattleMoveBytes, pokemon::Pokemon, item::Item, moves::Move};
 
 pub type SerializedTrainers = HashMap<TrainerId, Vec<u8>>;
+pub type SerializedTexture = Vec<u8>;
+pub type SerializedAudio = Vec<u8>;
 
 #[derive(Deserialize, Serialize)]
 pub struct SerializedDex {
-	pub pokemon: Vec<SerializedPokemon>,
-	pub moves: Vec<SerializedMove>,
+    pub pokemon: Vec<SerializedPokemon>,
+    pub moves: Vec<Move>,
     pub items: Vec<SerializedItem>,
     pub trainers: SerializedTrainers,
+    pub battle_moves: Vec<SerializedBattleMoveBytes>,
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct SerializedPokemon {
-
     pub pokemon: Pokemon,
-    pub cry_ogg: Vec<u8>,
-    pub front_png: Vec<u8>,
-    pub back_png: Vec<u8>,
-    pub icon_png: Vec<u8>,
-
-}
-
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct SerializedMove {
-
-    #[serde(rename = "move")]
-	pub pokemon_move: Move,
-
-    #[serde(default)]
-    pub battle_move: Option<SerializedBattleMoveBytes>,
-	
-}
-
-impl From<Move> for SerializedMove {
-    fn from(pokemon_move: Move) -> Self {
-        Self {
-            pokemon_move,
-            battle_move: None,
-        }
-    }
+    pub cry: SerializedAudio,
+    pub front: SerializedTexture,
+    pub back: SerializedTexture,
+    pub icon: SerializedTexture,
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct SerializedItem {
     pub item: Item,
-    pub texture: Vec<u8>,
+    pub texture: SerializedTexture,
 }

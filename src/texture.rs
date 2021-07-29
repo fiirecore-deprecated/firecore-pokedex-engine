@@ -1,15 +1,15 @@
+use engine::{
+    graphics::TextureManager,
+    tetra::{graphics::Texture, Context, Result},
+};
 use hashbrown::HashMap;
-use engine::tetra::{Context, Result, graphics::Texture};
 
-use pokedex::pokemon::PokemonId;
+use pokedex::{item::ItemId, pokemon::PokemonId, trainer::TrainerId};
 
 use crate::serialize::SerializedPokemon;
 
-mod item;
-mod trainer;
-
-pub use item::ItemTextures;
-pub use trainer::TrainerTextures;
+pub type TrainerTextures = TextureManager<TrainerId>;
+pub type ItemTextures = TextureManager<ItemId>;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PokemonTexture {
@@ -25,7 +25,6 @@ pub struct PokemonTextures {
 }
 
 impl PokemonTextures {
-
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
             front: HashMap::with_capacity(capacity),
@@ -35,9 +34,18 @@ impl PokemonTextures {
     }
 
     pub fn insert(&mut self, ctx: &mut Context, pokemon: &SerializedPokemon) -> Result {
-        self.front.insert(pokemon.pokemon.id, Texture::from_file_data(ctx, &pokemon.front_png)?);
-		self.back.insert(pokemon.pokemon.id, Texture::from_file_data(ctx, &pokemon.back_png)?);
-		self.icon.insert(pokemon.pokemon.id, Texture::from_file_data(ctx, &pokemon.icon_png)?);
+        self.front.insert(
+            pokemon.pokemon.id,
+            Texture::from_file_data(ctx, &pokemon.front)?,
+        );
+        self.back.insert(
+            pokemon.pokemon.id,
+            Texture::from_file_data(ctx, &pokemon.back)?,
+        );
+        self.icon.insert(
+            pokemon.pokemon.id,
+            Texture::from_file_data(ctx, &pokemon.icon)?,
+        );
         Ok(())
     }
 
@@ -46,7 +54,7 @@ impl PokemonTextures {
             PokemonTexture::Front => self.front.get(id),
             PokemonTexture::Back => self.back.get(id),
             PokemonTexture::Icon => self.icon.get(id),
-        }.unwrap_or_else(|| panic!("Could not get texture for pokemon with ID {}", id))
+        }
+        .unwrap_or_else(|| panic!("Could not get texture for pokemon with ID {}", id))
     }
-
 }

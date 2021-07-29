@@ -67,20 +67,8 @@ impl PokedexClientContext {
 
         Pokedex::set(pokedex);
 
-        let mut movedex = Movedex::with_capacity(dex.moves.len());
-
-        let mut battle_movedex = BattleMovedex::with_capacity(0);
-
-        for serialized_move in dex.moves {
-            let pmove = serialized_move.pokemon_move;
-            if let Some(battle_move) = serialized_move.battle_move {
-                battle_movedex.insert(pmove.id, battle_move.into(ctx));
-            }
-            movedex.insert(pmove.id, pmove);
-        }
-
-        Movedex::set(movedex);
-        BattleMovedex::set(battle_movedex);
+        Movedex::set(dex.moves.into_iter().map(|m| (m.id, m)).collect());
+        BattleMovedex::set(dex.battle_moves.into_iter().map(|m| (m.id, m.into(ctx))).collect());
 
         let mut itemdex = Itemdex::with_capacity(dex.items.len());
 
@@ -91,16 +79,13 @@ impl PokedexClientContext {
             itemdex.insert(item.item.id, item.item);
         }
 
-        let trainer_textures = TrainerTextures(
-            dex.trainers
-                .into_iter()
-                .map(|(k, bytes)| (k, Texture::from_file_data(ctx, &bytes).unwrap()))
-                .collect(),
-        );
+        let mut trainer_textures = TrainerTextures::with_capacity(dex.trainers.len());
+
+        for (id, texture) in dex.trainers {
+            trainer_textures.insert(id, Texture::from_file_data(ctx, &texture)?);
+        }
 
         Itemdex::set(itemdex);
-
-        let item_textures = ItemTextures(item_textures);
 
         Ok(Self {
             health_bar: byte_texture(ctx, include_bytes!("../assets/health.png")),

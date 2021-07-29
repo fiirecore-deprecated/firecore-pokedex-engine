@@ -1,10 +1,6 @@
-use crate::{
-    item::{bag::Bag, ItemRef, ItemStackInstance},
-    context::PokedexClientContext,
-};
 use atomic::Atomic;
 use engine::{
-    graphics::{draw_cursor, draw_o, draw_text_left, position, TextureManager},
+    graphics::{draw_cursor, draw_o, draw_text_left, position},
     gui::Panel,
     input::{pressed, Control},
     tetra::graphics::Texture,
@@ -15,6 +11,11 @@ use engine::{
 use std::{
     cell::RefCell,
     sync::atomic::{AtomicBool, AtomicUsize, Ordering::Relaxed},
+};
+
+use crate::{
+    context::PokedexClientContext,
+    item::{bag::Bag, ItemRef, ItemStackInstance},
 };
 
 // const WORLD_OPTIONS: &[&'static str] = &[
