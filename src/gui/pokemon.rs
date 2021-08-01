@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use crate::{
     context::PokedexClientContext, 
     id::Identifiable, 
-    pokemon::instance::PokemonInstance,
+    pokemon::PokemonInstance,
     texture::PokemonTexture::Icon, 
     types::PokemonType,
 };

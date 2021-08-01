@@ -4,7 +4,7 @@ use std::{
 };
 
 use atomic::Atomic;
-use pokedex::pokemon::party::Party;
+use pokedex::pokemon::Party;
 
 use engine::{
     graphics::{draw_line, draw_rectangle, draw_text_left, position},
@@ -76,7 +76,7 @@ impl PartyGui {
             ball: ctx.party.ball.clone(),
             health: HealthBar::new(ctx),
             accumulator: Atomic::new(0.0),
-            pokemon: RefCell::new(Default::default()),
+            pokemon: Default::default(),
             cursor: AtomicUsize::new(0),
             right_cursor: Atomic::new(None),
             selected: Atomic::new(None),

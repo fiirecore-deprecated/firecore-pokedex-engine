@@ -4,9 +4,9 @@ use engine::{
 };
 use hashbrown::HashMap;
 
-use pokedex::{item::ItemId, pokemon::PokemonId, trainer::TrainerId};
+use pokedex::{item::ItemId, pokemon::PokemonId};
 
-use crate::serialize::SerializedPokemon;
+use crate::{TrainerId, serialize::SerializedPokemon};
 
 pub type TrainerTextures = TextureManager<TrainerId>;
 pub type ItemTextures = TextureManager<ItemId>;

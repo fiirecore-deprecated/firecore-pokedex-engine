@@ -2,11 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use hashbrown::HashMap;
 
-use pokedex::trainer::TrainerId;
-
 use crate::{battle_move::serialized::SerializedBattleMoveBytes, pokemon::Pokemon, item::Item, moves::Move};
 
-pub type SerializedTrainers = HashMap<TrainerId, Vec<u8>>;
+pub type SerializedTrainers = HashMap<crate::TrainerId, Vec<u8>>;
 pub type SerializedTexture = Vec<u8>;
 pub type SerializedAudio = Vec<u8>;
 

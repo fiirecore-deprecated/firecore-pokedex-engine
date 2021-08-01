@@ -12,3 +12,5 @@ pub mod texture;
 pub mod serialize;
 
 pub const CRY_ID: tinystr::TinyStr8 = unsafe { tinystr::TinyStr8::new_unchecked(7959107) };
+
+pub type TrainerId = tinystr::TinyStr16;
