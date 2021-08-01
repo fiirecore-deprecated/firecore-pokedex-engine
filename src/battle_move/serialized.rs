@@ -21,9 +21,9 @@ impl SerializedBattleMoveFile {
     pub fn into(self, dir: PathBuf) -> SerializedBattleMove<Vec<u8>> {
         let texture = self.texture.map(|path| dir.join(path));
         let texture = if let Some(texture) = texture {
-            match read(texture) {
+            match read(&texture) {
                 Ok(bytes) => Some(bytes),
-                Err(err) => panic!("Could not read battle texture file for {} with error {}", self.id, err),
+                Err(err) => panic!("Could not read battle texture file for {} at {:?} with error {}", self.id, texture, err),
             }
         } else {
             None

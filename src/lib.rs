@@ -3,10 +3,11 @@ extern crate firecore_pokedex as pokedex;
 
 pub use pokedex::*;
 
-pub mod context;
 pub mod battle_move;
-pub mod texture;
+pub mod context;
 pub mod gui;
+pub mod itemstack;
+pub mod texture;
 
 pub mod serialize;
 

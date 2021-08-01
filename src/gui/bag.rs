@@ -15,7 +15,8 @@ use std::{
 
 use crate::{
     context::PokedexClientContext,
-    item::{bag::Bag, ItemRef, ItemStackInstance},
+    item::{bag::Bag, ItemRef},
+    itemstack::ItemStackInstance,
 };
 
 // const WORLD_OPTIONS: &[&'static str] = &[
