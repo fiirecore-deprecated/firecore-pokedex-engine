@@ -33,17 +33,17 @@ impl PokemonTextures {
         }
     }
 
-    pub fn insert(&mut self, ctx: &mut Context, pokemon: &SerializedPokemon) -> Result {
+    pub fn insert(&mut self, ctx: &mut Context, id: PokemonId, pokemon: &SerializedPokemon) -> Result {
         self.front.insert(
-            pokemon.pokemon.id,
+            id,
             Texture::from_file_data(ctx, &pokemon.front)?,
         );
         self.back.insert(
-            pokemon.pokemon.id,
+            id,
             Texture::from_file_data(ctx, &pokemon.back)?,
         );
         self.icon.insert(
-            pokemon.pokemon.id,
+            id,
             Texture::from_file_data(ctx, &pokemon.icon)?,
         );
         Ok(())

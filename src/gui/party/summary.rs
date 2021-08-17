@@ -1,11 +1,7 @@
-use std::{
-    cell::RefCell,
-    sync::atomic::{AtomicBool, AtomicU8, AtomicUsize, Ordering::Relaxed},
-};
+use core::cell::Cell;
+use tinystr::TinyStr4;
 
-use atomic::Atomic;
-
-use crate::{context::PokedexClientContext, texture::PokemonTexture::Front};
+use crate::{context::PokedexClientContext, gui::{IntegerStr4, LEVEL_PREFIX, cellref, party::PartyCell, pokemon::PokemonTypeDisplay, to_ascii4}, texture::PokemonTexture::Front};
 
 use engine::{
     graphics::{
@@ -19,26 +15,28 @@ use engine::{
     EngineContext,
 };
 
-use crate::gui::pokemon::{PokemonDisplay, PokemonTypeDisplay};
+use pokedex::pokemon::OwnedRefPokemon;
+
+use super::cell::CellHealth;
 
 pub struct SummaryGui {
-    pub alive: AtomicBool,
+    pub alive: Cell<bool>,
 
-    page: AtomicUsize,
+    page: Cell<usize>,
     headers: [&'static str; Self::PAGES],
     pages: [Texture; Self::PAGES],
     pokemon_background: Texture,
 
     offset: Offset,
 
-    pokemon: RefCell<Option<SummaryPokemon>>,
+    pokemon: Cell<Option<SummaryPokemon>>,
 }
 
 #[derive(Default)]
 struct Offset {
-    int: AtomicU8,
-    boolean: AtomicBool,
-    float: Atomic<f32>,
+    int: Cell<u8>,
+    boolean: Cell<bool>,
+    float: Cell<f32>,
 }
 
 impl SummaryGui {
@@ -49,33 +47,33 @@ impl SummaryGui {
     const HEADER_RIGHT: Color = Color::rgb(0.0, 120.0 / 255.0, 192.0 / 255.0);
     const HEADER_RIGHT_DARK: Color = Color::rgb(0.0, 72.0 / 255.0, 144.0 / 255.0);
 
-    pub fn new(ctx: &PokedexClientContext) -> Self {
+    pub fn new<U>(ctx: &PokedexClientContext<U>) -> Self {
         Self {
-            alive: AtomicBool::new(false),
+            alive: Default::default(),
             headers: ["POKEMON INFO", "POKEMON SKILLS", "KNOWN MOVES"],
             pages: ctx.party.summary.pages.clone(),
             offset: Default::default(),
             pokemon_background: ctx.party.summary.background.clone(),
-            page: AtomicUsize::new(0),
-            pokemon: RefCell::new(None),
+            page: Default::default(),
+            pokemon: Default::default(),
         }
     }
 
     pub fn input(&self, ctx: &EngineContext) {
-        let page = self.page.load(Relaxed);
+        let page = self.page.get();
         if pressed(ctx, Control::Left) && page > 0 {
-            self.page.store(page - 1, Relaxed);
+            self.page.set(page - 1);
         }
         if pressed(ctx, Control::Right) && page < Self::PAGES - 1 {
-            self.page.store(page + 1, Relaxed);
+            self.page.set(page + 1);
         }
         if pressed(ctx, Control::B) {
             self.despawn();
         }
     }
 
-    pub fn draw(&self, ctx: &mut EngineContext) {
-        let current_page = self.page.load(Relaxed);
+    pub fn draw<'d, U>(&self, ctx: &mut EngineContext, pokemon: &OwnedRefPokemon<'d, U>){
+        let current_page = self.page.get();
         let w = 114.0 + (current_page << 4) as f32;
         let rw = WIDTH - w;
         draw_rectangle(ctx, 0.0, 1.0, w, 15.0, Self::HEADER_LEFT);
@@ -99,36 +97,37 @@ impl SummaryGui {
             };
             draw_circle(ctx, 106.0 + (page << 4) as f32, 9.0, 6.0, color);
         }
-        if let Some(pokemon) = self.pokemon.borrow().as_ref() {
+        if let Some(summary) = cellref(&self.pokemon) {
             self.pokemon_background.draw(ctx, position(0.0, 17.0));
-            pokemon.front.0.draw(
+            summary.front.draw(
                 ctx,
-                position(28.0, pokemon.front.1 + self.offset.float.load(Relaxed)),
+                position(28.0, summary.pos + self.offset.float.get()),
             );
-            draw_text_left(ctx, &1, &pokemon.display.level, TextColor::White, 5.0, 19.0);
+            draw_text_left(ctx, &1, LEVEL_PREFIX, TextColor::White, 5.0, 19.0);
+            draw_text_left(ctx, &1, &summary.level.get(), TextColor::White, 15.0, 19.0);
             draw_text_left(
                 ctx,
                 &1,
-                &pokemon.display.instance.pokemon.name,
+                &pokemon.name(),
                 TextColor::White,
                 41.0,
                 19.0,
             );
             const TOP: DrawParams = position(0.0, 17.0);
-            match self.page.load(Relaxed) {
+            match self.page.get() {
                 0 => {
                     self.pages[0].draw(ctx, TOP);
-                    draw_text_left(ctx, &1, &pokemon.pokemon, TextColor::Black, 168.0, 21.0);
+                    draw_text_left(ctx, &1, &summary.id, TextColor::Black, 168.0, 21.0);
                     draw_text_left(
                         ctx,
                         &1,
-                        &pokemon.display.name,
+                        &pokemon.name(),
                         TextColor::Black,
                         168.0,
                         36.0,
                     );
 
-                    for (index, display) in pokemon.types.iter().enumerate() {
+                    for (index, display) in summary.types.iter().flatten().enumerate() {
                         let x = 168.0 + 37.0 * index as f32;
                         draw_rectangle(ctx, x, 52.0, 32.0, 6.0, display.upper);
                         draw_rectangle(ctx, x, 58.0, 32.0, 6.0, display.lower);
@@ -157,79 +156,76 @@ impl SummaryGui {
     }
 
     pub fn update(&self, delta: f32) {
-        let int = self.offset.int.load(Relaxed);
+        let int = self.offset.int.get();
         if int < 2 {
-            let float = self.offset.float.load(Relaxed);
-            match self.offset.boolean.load(Relaxed) {
+            let float = self.offset.float.get();
+            match self.offset.boolean.get() {
                 false => {
-                    self.offset.float.store(float - delta * 120.0, Relaxed);
+                    self.offset.float.set(float - delta * 120.0);
                     if float < -10.0 {
-                        self.offset.boolean.store(true, Relaxed);
+                        self.offset.boolean.set(true);
                     }
                 }
                 true => {
-                    self.offset.float.store(float + delta * 120.0, Relaxed);
+                    self.offset.float.set(float + delta * 120.0);
                     if float > 0.0 {
-                        self.offset.int.store(int + 1, Relaxed);
-                        self.offset.boolean.store(false, Relaxed);
+                        self.offset.int.set(int + 1);
+                        self.offset.boolean.set(false);
                     }
                 }
             }
         }
     }
 
-    pub fn spawn(&self, ctx: &PokedexClientContext, pokemon: PokemonDisplay) {
-        self.alive.store(true, Relaxed);
-        self.offset.int.store(Default::default(), Relaxed);
-        self.offset.boolean.store(Default::default(), Relaxed);
-        self.offset.float.store(Default::default(), Relaxed);
-        *self.pokemon.borrow_mut() = Some(SummaryPokemon::new(ctx, pokemon));
+    pub fn spawn<'d, U>(&self, ctx: &PokedexClientContext<U>, pokemon: &OwnedRefPokemon<'d, U>, cell: &PartyCell) {
+        match SummaryPokemon::new(ctx, pokemon, cell) {
+            Ok(pokemon) => {
+                self.alive.set(true);
+                self.offset.int.set(Default::default());
+                self.offset.boolean.set(Default::default());
+                self.offset.float.set(Default::default());
+                self.pokemon.set(Some(pokemon))
+            }
+            Err(err) => log::error!("Cannot create summary gui pokemon with error: {}", err),
+        }
     }
 
     pub fn despawn(&self) {
-        self.alive.store(false, Relaxed);
-        *self.pokemon.borrow_mut() = None;
+        self.alive.set(false)
     }
 
     pub fn alive(&self) -> bool {
-        self.alive.load(Relaxed)
+        self.alive.get()
     }
 }
 
-pub struct SummaryPokemon {
-    display: PokemonDisplay,
-    pokemon: String,       // id and name
-    front: (Texture, f32), // texture and pos
-    types: Vec<PokemonTypeDisplay>,
+struct SummaryPokemon {
+    id: TinyStr4, // id and name
+    front: Texture,
+    pos: f32, // texture and pos
+    types: [Option<PokemonTypeDisplay>; 2],
+    level: IntegerStr4,
+    health: CellHealth,
     // item: String,
 }
 
 impl SummaryPokemon {
-    pub fn new(ctx: &PokedexClientContext, display: PokemonDisplay) -> Self {
-        let pokemon = &*display.instance.pokemon;
-        let mut types = Vec::with_capacity(if pokemon.secondary_type.is_some() {
-            2
-        } else {
-            1
-        });
-
-        types.push(PokemonTypeDisplay::new(pokemon.primary_type));
-
-        if let Some(secondary) = pokemon.secondary_type {
-            types.push(PokemonTypeDisplay::new(secondary));
-        }
-
-        let texture = ctx.pokemon_textures.get(&pokemon.id, Front);
-
-        Self {
-            pokemon: pokemon.id.to_string(),
-            front: (
-                texture.clone(),
-                34.0 + (64.0 - texture.height() as f32) / 2.0,
-            ),
-            types,
-            // item: pokemon.instance.item.map(|item| item.name.to_ascii_uppercase()).unwrap_or("NONE".to_owned()),
-            display,
-        }
+    pub fn new<'d, U>(
+        ctx: &PokedexClientContext<U>,
+        pokemon: &OwnedRefPokemon<'d, U>,
+        cell: &PartyCell,
+    ) -> Result<Self, tinystr::Error> {
+        let texture = ctx.pokemon_textures.get(&pokemon.pokemon.id, Front);
+        Ok(Self {
+            id: to_ascii4(pokemon.pokemon.id)?,
+            front: texture.clone(),
+            types: [
+                Some(PokemonTypeDisplay::new(pokemon.pokemon.primary_type)),
+                pokemon.pokemon.secondary_type.map(PokemonTypeDisplay::new),
+            ],
+            pos: 34.0 + (64.0 - texture.height() as f32) / 2.0,
+            level: cell.level.clone(),
+            health: cell.health.clone(),
+        })
     }
 }

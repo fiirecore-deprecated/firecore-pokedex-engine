@@ -1,12 +1,13 @@
 pub extern crate firecore_engine as engine;
-extern crate firecore_pokedex as pokedex;
-
+pub extern crate firecore_pokedex as pokedex;
+// pub use battle::pokedex;
 pub use pokedex::*;
 
+#[deprecated(note = "add battle moves to battle-gui crate")]
 pub mod battle_move;
+
 pub mod context;
 pub mod gui;
-pub mod itemstack;
 pub mod texture;
 
 pub mod serialize;

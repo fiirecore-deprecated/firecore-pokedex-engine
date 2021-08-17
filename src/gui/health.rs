@@ -40,21 +40,21 @@ impl HealthBar {
         lower: Color::rgb(248.0 / 255.0, 88.0 / 255.0, 56.0 / 255.0),
     };
 
-    pub fn new(ctx: &PokedexClientContext) -> Self {
+    pub fn new<U>(ctx: &PokedexClientContext<U>) -> Self {
         Self {
             background: Self::texture(ctx).clone(),
             bar: ProgressBar::new(Self::WIDTH),
         }
     }
 
-    pub fn with_size(ctx: &PokedexClientContext, width: f32) -> Self {
+    pub fn with_size<U>(ctx: &PokedexClientContext<U>, width: f32) -> Self {
         Self {
             background: Self::texture(ctx).clone(),
             bar: ProgressBar::new(width),
         }
     }
 
-    pub fn texture(ctx: &PokedexClientContext) -> &Texture {
+    pub fn texture<'d, 'c, U>(ctx: &'c PokedexClientContext<'d, U>) -> &'c Texture {
         &ctx.health_bar
     }
 

@@ -4,17 +4,22 @@ use engine::{
     EngineContext,
 };
 
+use pokedex::{
+    item::{Item, Itemdex},
+    moves::{Move, Movedex},
+    pokemon::{Pokedex, Pokemon},
+    Dex,
+};
+
 use crate::{
-    battle_move::BattleMovedex,
-    id::Dex,
-    item::Itemdex,
-    moves::Movedex,
-    pokemon::Pokedex,
-    serialize::SerializedDex,
+    serialize::SerializedPokedexEngine,
     texture::{ItemTextures, PokemonTextures, TrainerTextures},
 };
 
-pub struct PokedexClientContext {
+pub struct PokedexClientContext<'d, U> {
+    pub pokedex: &'d Pokedex,
+    pub movedex: &'d Movedex<U>,
+    pub itemdex: &'d Itemdex,
     pub health_bar: Texture,
     pub bag_background: Texture,
     pub party: PokedexPartyContext,
@@ -35,14 +40,20 @@ pub struct PokedexSummaryContext {
     pub background: Texture,
 }
 
-impl PokedexClientContext {
-    pub fn new(ctx: &mut EngineContext, dex: SerializedDex) -> Result<Self> {
-        let mut pokedex = Pokedex::with_capacity(dex.pokemon.len());
+impl<'d, U> PokedexClientContext<'d, U> {
+    pub fn new(
+        ctx: &mut EngineContext,
+        pokedex: &'d Dex<Pokemon>,
+        movedex: &'d Dex<Move<U>>,
+        itemdex: &'d Dex<Item>,
+        engine: SerializedPokedexEngine,
+    ) -> Result<Self> {
+        let mut pokemon_textures = PokemonTextures::with_capacity(engine.pokemon.len());
 
-        let mut pokemon_textures = PokemonTextures::with_capacity(dex.pokemon.len());
-
-        for pokemon in dex.pokemon {
-            pokemon_textures.insert(ctx, &pokemon)?;
+        engine.pokemon.into_iter().for_each(|(id, pokemon)| {
+            if let Err(err) = pokemon_textures.insert(ctx, id, &pokemon) {
+                log::warn!("Cannot add pokemon texture for {} with error {}", id, err)
+            }
 
             #[cfg(feature = "audio")]
             {
@@ -55,39 +66,30 @@ impl PokedexClientContext {
                             bytes: pokemon.cry,
                             sound: Sound {
                                 name: crate::CRY_ID,
-                                variant: Some(pokemon.pokemon.id),
+                                variant: Some(id),
                             },
                         },
                     )
                 }
             }
+        });
 
-            pokedex.insert(pokemon.pokemon.id, pokemon.pokemon);
+        let mut item_textures = ItemTextures::with_capacity(engine.items.len());
+
+        for (id, texture) in engine.items.into_iter() {
+            item_textures.insert(id, Texture::from_file_data(ctx, &texture)?);
         }
 
-        Pokedex::set(pokedex);
+        let mut trainer_textures = TrainerTextures::with_capacity(engine.trainers.len());
 
-        Movedex::set(dex.moves.into_iter().map(|m| (m.id, m)).collect());
-        BattleMovedex::set(dex.battle_moves.into_iter().map(|m| (m.id, m.into(ctx))).collect());
-
-        let mut itemdex = Itemdex::with_capacity(dex.items.len());
-
-        let mut item_textures = ItemTextures::with_capacity(dex.items.len());
-
-        for item in dex.items.into_iter() {
-            item_textures.insert(item.item.id, Texture::from_file_data(ctx, &item.texture)?);
-            itemdex.insert(item.item.id, item.item);
-        }
-
-        let mut trainer_textures = TrainerTextures::with_capacity(dex.trainers.len());
-
-        for (id, texture) in dex.trainers {
+        for (id, texture) in engine.trainers {
             trainer_textures.insert(id, Texture::from_file_data(ctx, &texture)?);
         }
 
-        Itemdex::set(itemdex);
-
         Ok(Self {
+            pokedex,
+            movedex,
+            itemdex,
             health_bar: byte_texture(ctx, include_bytes!("../assets/health.png")),
             bag_background: byte_texture(ctx, include_bytes!("../assets/bag/items.png")),
             party: PokedexPartyContext {

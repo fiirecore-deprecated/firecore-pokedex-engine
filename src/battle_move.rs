@@ -1,10 +1,6 @@
 use engine::tetra::graphics::Texture;
-use hashbrown::HashMap;
 
-use pokedex::{
-    id::{Dex, Identifiable, IdentifiableRef},
-    moves::{MoveId, Movedex},
-};
+use pokedex::{moves::MoveId, Dex, Identifiable, IdentifiableRef, UNKNOWN_ID};
 
 pub mod script;
 pub mod serialized;
@@ -27,30 +23,16 @@ impl BattleMove {
     }
 }
 
-pub type BattleMoveRef = IdentifiableRef<BattleMovedex>;
+pub type BattleMoveRef<'d> = IdentifiableRef<'d, BattleMovedex>;
 
 impl Identifiable for BattleMove {
     type Id = MoveId;
+
+    const UNKNOWN: Self::Id = UNKNOWN_ID;
 
     fn id(&self) -> &Self::Id {
         &self.id
     }
 }
 
-pub struct BattleMovedex;
-
-static mut BATTLE_MOVE_DEX: Option<HashMap<MoveId, BattleMove>> = None;
-
-impl Dex for BattleMovedex {
-    type Kind = BattleMove;
-
-    const UNKNOWN: MoveId = Movedex::UNKNOWN;
-
-    fn dex() -> &'static HashMap<MoveId, BattleMove> {
-        unsafe { BATTLE_MOVE_DEX.as_ref().unwrap() }
-    }
-
-    fn dex_mut() -> &'static mut Option<HashMap<MoveId, BattleMove>> {
-        unsafe { &mut BATTLE_MOVE_DEX }
-    }
-}
+pub type BattleMovedex = Dex<BattleMove>;
