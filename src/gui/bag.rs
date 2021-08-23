@@ -40,7 +40,7 @@ pub struct BagGui {
 }
 
 impl BagGui {
-    pub fn new<U>(ctx: &PokedexClientContext<U>) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             alive: Default::default(),
             background: ctx.bag_background.clone(),
@@ -109,7 +109,7 @@ impl BagGui {
         }
     }
 
-    pub fn draw<'d, U>(&self, ctx: &mut EngineContext, dex: &PokedexClientContext<U>, items: &[ItemRefStack<'d>]) {
+    pub fn draw<'d>(&self, ctx: &mut EngineContext, dex: &PokedexClientContext, items: &[ItemRefStack<'d>]) {
         self.background.draw(ctx, position(0.0, 0.0));
         let cursor = self.cursor.get();
         for (index, stack) in items.iter().enumerate() {

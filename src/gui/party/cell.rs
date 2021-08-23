@@ -15,7 +15,7 @@ pub struct PartyCell {
 impl PartyCell {
     pub const ICON_TICK: f32 = 0.15;
 
-    pub fn init<'d, U>(&self, ctx: &PokedexClientContext<U>, pokemon: &OwnedRefPokemon<'d, U>) {
+    pub fn init<'d>(&self, ctx: &PokedexClientContext, pokemon: &OwnedRefPokemon<'d>) {
         self.level.update_or_default(pokemon.level as _);
         self.health.update_or_default(pokemon);
         self.icon.set(Some(
@@ -45,7 +45,7 @@ impl CellHealth {
         self.maximum.clear();
         self.percent.set(0.0);
     }
-    pub fn update_or_default<'d, U>(&self, pokemon: &OwnedRefPokemon<'d, U>) {
+    pub fn update_or_default<'d>(&self, pokemon: &OwnedRefPokemon<'d>) {
         self.current.update_or_default(pokemon.hp());
         self.maximum.update_or_default(pokemon.max_hp());
         self.percent.set(pokemon.percent_hp());

@@ -65,7 +65,7 @@ impl PartyGui {
 
     const SELECT_CORNER: Color = Color::rgb(120.0 / 255.0, 152.0 / 255.0, 96.0 / 255.0);
 
-    pub fn new<U>(ctx: &PokedexClientContext<U>) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             alive: Default::default(),
             select: PartySelectMenu::new(ctx),
@@ -88,10 +88,10 @@ impl PartyGui {
         self.select.is_world.set(world);
     }
 
-    pub fn spawn<'d, U>(
+    pub fn spawn<'d>(
         &self,
-        ctx: &PokedexClientContext<U>,
-        party: Party<OwnedRefPokemon<'d, U>>,
+        ctx: &PokedexClientContext,
+        party: Party<OwnedRefPokemon<'d>>,
         is_world: Option<bool>,
         exitable: bool,
     ) {
@@ -102,7 +102,7 @@ impl PartyGui {
         }
     }
 
-    pub fn input<'d, U>(&self, ctx: &EngineContext, dex: &PokedexClientContext<U>, party: &mut [OwnedRefPokemon<'d, U>]) {
+    pub fn input<'d>(&self, ctx: &EngineContext, dex: &PokedexClientContext, party: &mut [OwnedRefPokemon<'d>]) {
         if self.summary.alive() {
             self.summary.input(ctx);
         } else if self.select.alive.get() {
@@ -180,7 +180,7 @@ impl PartyGui {
         }
     }
 
-    pub fn draw<'d, U>(&self, ctx: &mut EngineContext, party: &[OwnedRefPokemon<'d, U>]) {
+    pub fn draw<'d>(&self, ctx: &mut EngineContext, party: &[OwnedRefPokemon<'d>]) {
         // deps::log::debug!("to - do: /party brings up party gui");
         if self.summary.alive() {
             match self.selected.get() {
@@ -206,10 +206,10 @@ impl PartyGui {
         }
     }
 
-    fn draw_primary<'d,  U>(
+    fn draw_primary<'d>(
         &self,
         ctx: &mut EngineContext,
-        pokemon: &OwnedRefPokemon<'d, U>,
+        pokemon: &OwnedRefPokemon<'d>,
         cell: &PartyCell,
     ) {
         let selected = self.cursor.get() == 0;
@@ -279,11 +279,11 @@ impl PartyGui {
         }
     }
 
-    fn draw_cell<'d, U>(
+    fn draw_cell<'d>(
         &self,
         ctx: &mut EngineContext,
         index: usize,
-        pokemon: &OwnedRefPokemon<'d, U>,
+        pokemon: &OwnedRefPokemon<'d>,
         cell: &PartyCell,
         selected: bool,
     ) {

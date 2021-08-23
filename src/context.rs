@@ -16,9 +16,9 @@ use crate::{
     texture::{ItemTextures, PokemonTextures, TrainerTextures},
 };
 
-pub struct PokedexClientContext<'d, U> {
+pub struct PokedexClientContext<'d> {
     pub pokedex: &'d Pokedex,
-    pub movedex: &'d Movedex<U>,
+    pub movedex: &'d Movedex,
     pub itemdex: &'d Itemdex,
     pub health_bar: Texture,
     pub bag_background: Texture,
@@ -40,11 +40,11 @@ pub struct PokedexSummaryContext {
     pub background: Texture,
 }
 
-impl<'d, U> PokedexClientContext<'d, U> {
+impl<'d> PokedexClientContext<'d> {
     pub fn new(
         ctx: &mut EngineContext,
         pokedex: &'d Dex<Pokemon>,
-        movedex: &'d Dex<Move<U>>,
+        movedex: &'d Dex<Move>,
         itemdex: &'d Dex<Item>,
         engine: SerializedPokedexEngine,
     ) -> Result<Self> {

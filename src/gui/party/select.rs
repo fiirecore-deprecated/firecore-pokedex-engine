@@ -30,7 +30,7 @@ pub enum PartySelectAction {
 }
 
 impl PartySelectMenu {
-    pub fn new<U>(ctx: &PokedexClientContext<U>) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             alive: Default::default(),
             background: ctx.party.select.clone(),

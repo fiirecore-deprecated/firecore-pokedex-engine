@@ -47,7 +47,7 @@ impl SummaryGui {
     const HEADER_RIGHT: Color = Color::rgb(0.0, 120.0 / 255.0, 192.0 / 255.0);
     const HEADER_RIGHT_DARK: Color = Color::rgb(0.0, 72.0 / 255.0, 144.0 / 255.0);
 
-    pub fn new<U>(ctx: &PokedexClientContext<U>) -> Self {
+    pub fn new(ctx: &PokedexClientContext) -> Self {
         Self {
             alive: Default::default(),
             headers: ["POKEMON INFO", "POKEMON SKILLS", "KNOWN MOVES"],
@@ -72,7 +72,7 @@ impl SummaryGui {
         }
     }
 
-    pub fn draw<'d, U>(&self, ctx: &mut EngineContext, pokemon: &OwnedRefPokemon<'d, U>){
+    pub fn draw<'d>(&self, ctx: &mut EngineContext, pokemon: &OwnedRefPokemon<'d>){
         let current_page = self.page.get();
         let w = 114.0 + (current_page << 4) as f32;
         let rw = WIDTH - w;
@@ -177,7 +177,7 @@ impl SummaryGui {
         }
     }
 
-    pub fn spawn<'d, U>(&self, ctx: &PokedexClientContext<U>, pokemon: &OwnedRefPokemon<'d, U>, cell: &PartyCell) {
+    pub fn spawn<'d>(&self, ctx: &PokedexClientContext, pokemon: &OwnedRefPokemon<'d>, cell: &PartyCell) {
         match SummaryPokemon::new(ctx, pokemon, cell) {
             Ok(pokemon) => {
                 self.alive.set(true);
@@ -210,9 +210,9 @@ struct SummaryPokemon {
 }
 
 impl SummaryPokemon {
-    pub fn new<'d, U>(
-        ctx: &PokedexClientContext<U>,
-        pokemon: &OwnedRefPokemon<'d, U>,
+    pub fn new<'d>(
+        ctx: &PokedexClientContext,
+        pokemon: &OwnedRefPokemon<'d>,
         cell: &PartyCell,
     ) -> Result<Self, tinystr::Error> {
         let texture = ctx.pokemon_textures.get(&pokemon.pokemon.id, Front);
