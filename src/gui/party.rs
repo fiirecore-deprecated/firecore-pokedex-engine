@@ -91,7 +91,7 @@ impl PartyGui {
     pub fn spawn<'d>(
         &self,
         ctx: &PokedexClientContext,
-        party: Party<OwnedRefPokemon<'d>>,
+        party: &Party<OwnedRefPokemon<'d>>,
         is_world: Option<bool>,
         exitable: bool,
     ) {
