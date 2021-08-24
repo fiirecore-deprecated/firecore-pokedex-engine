@@ -3,8 +3,8 @@ pub extern crate firecore_pokedex as pokedex;
 // pub use battle::pokedex;
 pub use pokedex::*;
 
-#[deprecated(note = "add battle moves to battle-gui crate")]
-pub mod battle_move;
+// #[deprecated(note = "add battle moves to battle-gui crate")]
+// pub mod battle_move;
 
 pub mod context;
 pub mod gui;
