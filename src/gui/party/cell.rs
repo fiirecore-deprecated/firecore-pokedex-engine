@@ -1,7 +1,7 @@
 use core::cell::Cell;
 use engine::tetra::graphics::Texture;
 
-use pokedex::{pokemon::OwnedRefPokemon, Identifiable};
+use pokedex::{pokemon::owned::OwnedPokemon, Identifiable};
 
 use crate::{context::PokedexClientContext, gui::IntegerStr4, texture::PokemonTexture};
 
@@ -15,7 +15,7 @@ pub struct PartyCell {
 impl PartyCell {
     pub const ICON_TICK: f32 = 0.15;
 
-    pub fn init<'d>(&self, ctx: &PokedexClientContext, pokemon: &OwnedRefPokemon<'d>) {
+    pub fn init<'d>(&self, ctx: &PokedexClientContext, pokemon: &OwnedPokemon<'d>) {
         self.level.update_or_default(pokemon.level as _);
         self.health.update_or_default(pokemon);
         self.icon.set(Some(
@@ -45,7 +45,7 @@ impl CellHealth {
         self.maximum.clear();
         self.percent.set(0.0);
     }
-    pub fn update_or_default<'d>(&self, pokemon: &OwnedRefPokemon<'d>) {
+    pub fn update_or_default<'d>(&self, pokemon: &OwnedPokemon<'d>) {
         self.current.update_or_default(pokemon.hp());
         self.maximum.update_or_default(pokemon.max_hp());
         self.percent.set(pokemon.percent_hp());

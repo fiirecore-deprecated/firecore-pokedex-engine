@@ -1,6 +1,6 @@
 use core::cell::Cell;
 
-use pokedex::pokemon::{OwnedRefPokemon, Party, PARTY_LENGTH};
+use pokedex::pokemon::{owned::OwnedPokemon, party::{Party, PARTY_SIZE}};
 
 use engine::{
     graphics::{draw_line, draw_rectangle, draw_text_left, draw_text_right, position},
@@ -37,7 +37,7 @@ pub struct PartyGui {
     ball: Texture,
     health: HealthBar,
 
-    pokemon: [PartyCell; PARTY_LENGTH - 1],
+    pokemon: [PartyCell; PARTY_SIZE - 1],
 
     selected: Cell<Option<usize>>,
 
@@ -91,7 +91,7 @@ impl PartyGui {
     pub fn spawn<'d>(
         &self,
         ctx: &PokedexClientContext,
-        party: &Party<OwnedRefPokemon<'d>>,
+        party: &Party<OwnedPokemon<'d>>,
         is_world: Option<bool>,
         exitable: bool,
     ) {
@@ -102,7 +102,7 @@ impl PartyGui {
         }
     }
 
-    pub fn input<'d>(&self, ctx: &EngineContext, dex: &PokedexClientContext, party: &mut [OwnedRefPokemon<'d>]) {
+    pub fn input<'d>(&self, ctx: &EngineContext, dex: &PokedexClientContext, party: &mut [OwnedPokemon<'d>]) {
         if self.summary.alive() {
             self.summary.input(ctx);
         } else if self.select.alive.get() {
@@ -180,7 +180,7 @@ impl PartyGui {
         }
     }
 
-    pub fn draw<'d>(&self, ctx: &mut EngineContext, party: &[OwnedRefPokemon<'d>]) {
+    pub fn draw<'d>(&self, ctx: &mut EngineContext, party: &[OwnedPokemon<'d>]) {
         // deps::log::debug!("to - do: /party brings up party gui");
         if self.summary.alive() {
             match self.selected.get() {
@@ -209,7 +209,7 @@ impl PartyGui {
     fn draw_primary<'d>(
         &self,
         ctx: &mut EngineContext,
-        pokemon: &OwnedRefPokemon<'d>,
+        pokemon: &OwnedPokemon<'d>,
         cell: &PartyCell,
     ) {
         let selected = self.cursor.get() == 0;
@@ -283,7 +283,7 @@ impl PartyGui {
         &self,
         ctx: &mut EngineContext,
         index: usize,
-        pokemon: &OwnedRefPokemon<'d>,
+        pokemon: &OwnedPokemon<'d>,
         cell: &PartyCell,
         selected: bool,
     ) {

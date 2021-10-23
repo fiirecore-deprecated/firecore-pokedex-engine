@@ -15,7 +15,7 @@ use engine::{
     EngineContext,
 };
 
-use pokedex::pokemon::OwnedRefPokemon;
+use pokedex::pokemon::owned::OwnedPokemon;
 
 use super::cell::CellHealth;
 
@@ -72,7 +72,7 @@ impl SummaryGui {
         }
     }
 
-    pub fn draw<'d>(&self, ctx: &mut EngineContext, pokemon: &OwnedRefPokemon<'d>){
+    pub fn draw<'d>(&self, ctx: &mut EngineContext, pokemon: &OwnedPokemon<'d>){
         let current_page = self.page.get();
         let w = 114.0 + (current_page << 4) as f32;
         let rw = WIDTH - w;
@@ -177,7 +177,7 @@ impl SummaryGui {
         }
     }
 
-    pub fn spawn<'d>(&self, ctx: &PokedexClientContext, pokemon: &OwnedRefPokemon<'d>, cell: &PartyCell) {
+    pub fn spawn<'d>(&self, ctx: &PokedexClientContext, pokemon: &OwnedPokemon<'d>, cell: &PartyCell) {
         match SummaryPokemon::new(ctx, pokemon, cell) {
             Ok(pokemon) => {
                 self.alive.set(true);
@@ -212,7 +212,7 @@ struct SummaryPokemon {
 impl SummaryPokemon {
     pub fn new<'d>(
         ctx: &PokedexClientContext,
-        pokemon: &OwnedRefPokemon<'d>,
+        pokemon: &OwnedPokemon<'d>,
         cell: &PartyCell,
     ) -> Result<Self, tinystr::Error> {
         let texture = ctx.pokemon_textures.get(&pokemon.pokemon.id, Front);

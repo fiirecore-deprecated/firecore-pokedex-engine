@@ -4,12 +4,7 @@ use engine::{
     EngineContext,
 };
 
-use pokedex::{
-    item::{Item, Itemdex},
-    moves::{Move, Movedex},
-    pokemon::{Pokedex, Pokemon},
-    Dex,
-};
+use pokedex::{item::Item, moves::Move, pokemon::Pokemon, Dex};
 
 use crate::{
     serialize::SerializedPokedexEngine,
@@ -17,9 +12,9 @@ use crate::{
 };
 
 pub struct PokedexClientContext<'d> {
-    pub pokedex: &'d Pokedex,
-    pub movedex: &'d Movedex,
-    pub itemdex: &'d Itemdex,
+    pub pokedex: &'d dyn Dex<Pokemon>,
+    pub movedex: &'d dyn Dex<Move>,
+    pub itemdex: &'d dyn Dex<Item>,
     pub health_bar: Texture,
     pub bag_background: Texture,
     pub party: PokedexPartyContext,
@@ -43,9 +38,9 @@ pub struct PokedexSummaryContext {
 impl<'d> PokedexClientContext<'d> {
     pub fn new(
         ctx: &mut EngineContext,
-        pokedex: &'d Dex<Pokemon>,
-        movedex: &'d Dex<Move>,
-        itemdex: &'d Dex<Item>,
+        pokedex: &'d dyn Dex<Pokemon>,
+        movedex: &'d dyn Dex<Move>,
+        itemdex: &'d dyn Dex<Item>,
         engine: SerializedPokedexEngine,
     ) -> Result<Self> {
         let mut pokemon_textures = PokemonTextures::with_capacity(engine.pokemon.len());

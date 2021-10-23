@@ -10,7 +10,7 @@ use engine::{
     EngineContext,
 };
 
-use pokedex::item::{ItemRefStack, ItemRef};
+use pokedex::item::{Item, ItemStack};
 
 use crate::context::PokedexClientContext;
 
@@ -53,7 +53,7 @@ impl BagGui {
         }
     }
 
-    pub fn input<'d>(&self, ctx: &EngineContext, items: &mut [ItemRefStack<'d>]) {
+    pub fn input<'d>(&self, ctx: &EngineContext, items: &mut [ItemStack<&'d Item>]) {
         match self.selecting.get() {
             true => {
                 // match self.select_text {
@@ -109,7 +109,7 @@ impl BagGui {
         }
     }
 
-    pub fn draw<'d>(&self, ctx: &mut EngineContext, dex: &PokedexClientContext, items: &[ItemRefStack<'d>]) {
+    pub fn draw<'d>(&self, ctx: &mut EngineContext, dex: &PokedexClientContext, items: &[ItemStack<&'d Item>]) {
         self.background.draw(ctx, position(0.0, 0.0));
         let cursor = self.cursor.get();
         for (index, stack) in items.iter().enumerate() {
@@ -130,7 +130,7 @@ impl BagGui {
         );
         if let Some(stack) = items.get(cursor) {
             draw_o(ctx, dex.item_textures.try_get(&stack.item.id), 8.0, 125.0);
-            for (index, line) in stack.item.description.iter().enumerate() {
+            for (index, line) in stack.item.description.lines().enumerate() {
                 draw_text_left(
                     ctx,
                     &1,
@@ -169,7 +169,7 @@ impl BagGui {
     //     }
     // }
 
-    pub fn take_selected_despawn<'d>(&self, items: &mut [ItemRefStack<'d>]) -> Option<ItemRef<'d>> {
+    pub fn take_selected_despawn<'d>(&self, items: &mut [ItemStack<&'d Item>]) -> Option<&'d Item> {
         let selected = self.selected.get();
         selected
             .map(|selected| {
