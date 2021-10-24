@@ -1,7 +1,7 @@
 [package]
 name = "firecore-pokedex-engine"
 description = "GUIs and other graphical things for firecore-pokedex"
-version = "0.0.1" #"0.5.0-beta.2021-08-16"
+version = "0.0.2-alpha.1" #"0.5.0-beta.2021-08-16"
 authors = ["Rhys Holloway <rhyswilliamholloway@gmail.com>"]
 edition = "2018"
 repository = "https://github.com/fiirecore/pokedex-engine"
@@ -14,7 +14,7 @@ audio = ["firecore-engine/audio"]
 
 [dependencies]
 firecore-engine = { version = "0.0.1", default-features = false }
-firecore-pokedex = "0.0.5"
+firecore-pokedex = "0.0.6-alpha.1"
 hashbrown = { version = "0.11", features = ["serde"] }
 tinystr = { version = "0.4", features = ["serde"], default-features = false }
 serde = { version = "1", features = ["derive"] }
