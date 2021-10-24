@@ -14,7 +14,7 @@ audio = ["firecore-engine/audio"]
 
 [dependencies]
 firecore-engine = { version = "0.0.1", default-features = false }
-firecore-pokedex = "0.0.6-alpha.1"
+firecore-pokedex = "0.0.6-alpha"
 hashbrown = { version = "0.11", features = ["serde"] }
 tinystr = { version = "0.4", features = ["serde"], default-features = false }
 serde = { version = "1", features = ["derive"] }
